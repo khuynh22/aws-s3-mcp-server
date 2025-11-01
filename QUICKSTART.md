@@ -49,19 +49,60 @@ ALLOW_WRITE=false
 
 You should see your S3 buckets listed. If you get an error, see [Troubleshooting](#troubleshooting) below.
 
-### Step 4: Configure Claude Desktop
+### Step 4: Configure Your MCP Client
 
-```powershell
-.\scripts\configure-claude.ps1
+#### For Claude Desktop
+
+Edit the configuration file:
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+Add this configuration:
+
+```json
+{
+  "mcpServers": {
+    "aws-s3": {
+      "command": "node",
+      "args": ["C:\\src\\aws-s3-mcp-server\\dist\\index.js"]
+    }
+  }
+}
 ```
 
-This generates the Claude Desktop configuration. Follow the on-screen instructions.
+**Replace `C:\\src\\aws-s3-mcp-server\\dist\\index.js` with your actual installation path.**
+- Windows: Use double backslashes `\\`
+- Mac/Linux: Use forward slashes `/`
 
-### Step 5: Use with Claude
+#### For VS Code (Copilot Chat)
 
-1. **Restart Claude Desktop**
-2. **Test it:** Ask Claude: `"List my S3 buckets"`
-3. **🎉 Done!** You're now using S3 with Claude!
+Edit `~/.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "aws-s3": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["C:\\src\\aws-s3-mcp-server\\dist\\index.js"]
+    }
+  }
+}
+```
+
+**Then reload VS Code:** Press `Ctrl+Shift+P` → Type "Reload Window" → Press Enter
+
+### Step 5: Test It
+
+**For Claude Desktop:**
+1. Restart Claude Desktop
+2. Ask: `"List my S3 buckets"`
+
+**For VS Code:**
+1. In Copilot Chat, type: `@aws-s3 list my buckets`
+
+**🎉 Done!** You're now using S3 with your MCP client!
 
 ---
 
@@ -303,7 +344,6 @@ AWS_PROFILE=myprofile
 |---------|---------|
 | `.\scripts\setup.ps1` | Initial setup (Windows) |
 | `.\scripts\test-connection.ps1` | Test AWS connection |
-| `.\scripts\configure-claude.ps1` | Configure Claude Desktop |
 | `npm run build` | Rebuild after changes |
 | `node examples/quick-test.js` | Manual connection test |
 

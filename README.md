@@ -17,44 +17,25 @@ Perfect for integrating S3 with Claude Desktop and other MCP clients!
 
 ## 🚀 Quick Start
 
-### Fastest Way (Windows)
-
-```powershell
-# Run the automated setup
-.\scripts\setup.ps1
-
-# Add your AWS credentials
-notepad .env
-
-# Test the connection
-.\scripts\test-connection.ps1
-
-# Configure Claude Desktop
-.\scripts\configure-claude.ps1
-```
-
-**Then restart Claude Desktop and ask:** "List my S3 buckets"
-
-### Manual Setup (Any Platform)
+### Fastest Setup
 
 ```bash
 # 1. Install and build
 npm install
 npm run build
 
-# 2. Configure credentials
+# 2. Configure AWS credentials
 cp .env.example .env
-# Edit .env with your AWS credentials
+# Edit .env with your AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
 
 # 3. Test connection
 node examples/quick-test.js
-
-# 4. Add to Claude Desktop config
-# Windows: %APPDATA%\Claude\claude_desktop_config.json
-# Mac: ~/Library/Application Support/Claude/claude_desktop_config.json
 ```
 
-Config to add:
+### 4. Add to Your MCP Client
+
+**For Claude Desktop** - Edit `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -66,7 +47,28 @@ Config to add:
 }
 ```
 
-**📖 Complete guide:** [QUICKSTART.md](QUICKSTART.md) (5 minutes)
+**For VS Code** - Edit `~/.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "aws-s3": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/aws-s3-mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+**Replace the path with your actual installation directory.**
+
+### 5. Test It
+
+- **Claude Desktop:** Restart → Ask "List my S3 buckets"
+- **VS Code:** Reload window → `@aws-s3 list my buckets`
+
+**📖 Complete guide:** [QUICKSTART.md](QUICKSTART.md)
 
 ## Documentation
 

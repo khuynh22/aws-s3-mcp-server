@@ -51,32 +51,9 @@ This directory contains PowerShell scripts to simplify server management on Wind
 
 ---
 
-### configure-claude.ps1
-
-**Purpose:** Generate and configure Claude Desktop config
-
-**Usage:**
-```powershell
-.\scripts\configure-claude.ps1
-```
-
-**What it does:**
-1. Checks if server is built
-2. Generates JSON configuration for Claude Desktop
-3. Shows the config file location
-4. Optionally creates the config file
-5. Provides next steps
-
-**When to use:**
-- After completing initial setup
-- When setting up Claude Desktop integration
-- If you need to update the server path
-
----
-
 ### start.ps1
 
-**Purpose:** Start the MCP server
+**Purpose:** Start the MCP server manually
 
 **Usage:**
 ```powershell
@@ -112,10 +89,11 @@ notepad .env
 # 3. Test AWS connection
 .\scripts\test-connection.ps1
 
-# 4. Configure Claude Desktop
-.\scripts\configure-claude.ps1
+# 4. Add to your MCP client config (see QUICKSTART.md for JSON examples)
+# - Claude Desktop: Edit claude_desktop_config.json
+# - VS Code: Edit ~/.vscode/mcp.json
 
-# 5. Restart Claude Desktop and test
+# 5. Restart your MCP client and test
 ```
 
 ### After Updating Code
@@ -137,8 +115,7 @@ npm run build
 # Test AWS credentials
 .\scripts\test-connection.ps1
 
-# Regenerate Claude config
-.\scripts\configure-claude.ps1
+# See QUICKSTART.md for MCP client configuration examples
 ```
 
 ## Common Issues

@@ -3,84 +3,54 @@
 This guide will walk you through using the AWS S3 MCP Server with Claude Desktop and other MCP clients.
 
 ## Table of Contents
-- [Using with Claude Desktop](#using-with-claude-desktop)
+- [Configuration](#configuration)
 - [Available Tools & Examples](#available-tools--examples)
 - [Common Use Cases](#common-use-cases)
 - [Tips & Best Practices](#tips--best-practices)
 
-## Using with Claude Desktop
+## Configuration
 
-### Initial Setup
+### For Claude Desktop
 
-1. **Make sure the server is configured** (see [SETUP_GUIDE.md](SETUP_GUIDE.md))
+Edit your Claude Desktop config file:
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
 
-2. **Configure Claude Desktop** to use the MCP server by editing your config file:
-
-   **Windows Location:**
-   ```
-   %APPDATA%\Claude\claude_desktop_config.json
-   ```
-
-   **Mac/Linux Location:**
-   ```
-   ~/Library/Application Support/Claude/claude_desktop_config.json
-   ```
-
-3. **Add the server configuration** to the JSON file:
-
-   ```json
-   {
-     "mcpServers": {
-       "aws-s3": {
-         "command": "node",
-         "args": [
-           "C:\\src\\aws-s3-mcp-server\\dist\\index.js"
-         ],
-         "env": {
-           "AWS_ACCESS_KEY_ID": "YOUR_ACCESS_KEY",
-           "AWS_SECRET_ACCESS_KEY": "YOUR_SECRET_KEY",
-           "AWS_REGION": "us-east-1",
-           "ALLOW_WRITE": "false"
-         }
-       }
-     }
-   }
-   ```
-
-   **Important:**
-   - Replace the path with your actual installation path
-   - Use double backslashes (`\\`) in Windows paths
-   - Replace AWS credentials with your actual credentials
-   - Set `ALLOW_WRITE` to `"true"` if you need upload capabilities
-
-4. **Restart Claude Desktop** for changes to take effect
-
-5. **Verify the server is running** by asking Claude: "What S3 buckets do I have?"
-
-### Alternative: Using .env file (Recommended)
-
-For better security, use environment variables from a `.env` file:
+Add this configuration:
 
 ```json
 {
   "mcpServers": {
     "aws-s3": {
       "command": "node",
-      "args": [
-        "C:\\src\\aws-s3-mcp-server\\dist\\index.js"
-      ]
+      "args": ["/absolute/path/to/aws-s3-mcp-server/dist/index.js"]
     }
   }
 }
 ```
 
-Then configure your `.env` file in the project directory with:
-```bash
-AWS_ACCESS_KEY_ID=your_access_key_here
-AWS_SECRET_ACCESS_KEY=your_secret_key_here
-AWS_REGION=us-east-1
-ALLOW_WRITE=false
+### For VS Code (Copilot Chat)
+
+Edit `~/.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "aws-s3": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/aws-s3-mcp-server/dist/index.js"]
+    }
+  }
+}
 ```
+
+Then reload VS Code: `Ctrl+Shift+P` → "Developer: Reload Window"
+
+**Note:** The server automatically loads AWS credentials from the `.env` file in your project root.
+
+---
 
 ## Available Tools & Examples
 
