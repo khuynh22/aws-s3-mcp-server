@@ -31,8 +31,16 @@ const logger = pino({
 
 // Validate required environment variables
 const AWS_REGION = process.env.AWS_REGION;
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+
 if (!AWS_REGION) {
   logger.error('AWS_REGION environment variable is required');
+  process.exit(1);
+}
+
+if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
+  logger.error('AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables are required');
   process.exit(1);
 }
 
@@ -43,8 +51,8 @@ const ALLOW_WRITE = process.env.ALLOW_WRITE === 'true';
 const s3Client = new S3Client({
   region: AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
 });
 
