@@ -2,6 +2,8 @@
 
 A Model Context Protocol (MCP) server that exposes AWS S3 operations through a secure, well-defined interface. This server provides tools for listing buckets and objects, and generating presigned URLs for safe data access.
 
+Perfect for integrating S3 with Claude Desktop and other MCP clients!
+
 ## Features
 
 - **List Buckets**: Enumerate all S3 buckets in your AWS account
@@ -11,6 +13,66 @@ A Model Context Protocol (MCP) server that exposes AWS S3 operations through a s
 - **Input Validation**: All inputs are validated using Zod schemas
 - **Logging**: Structured logging with Pino
 - **Safe by Default**: Write operations are disabled unless explicitly enabled
+- **Cross-Platform**: Works on Windows, Mac, and Linux
+
+## 🚀 Quick Start
+
+### Fastest Way (Windows)
+
+```powershell
+# Run the automated setup
+.\scripts\setup.ps1
+
+# Add your AWS credentials
+notepad .env
+
+# Test the connection
+.\scripts\test-connection.ps1
+
+# Configure Claude Desktop
+.\scripts\configure-claude.ps1
+```
+
+**Then restart Claude Desktop and ask:** "List my S3 buckets"
+
+### Manual Setup (Any Platform)
+
+```bash
+# 1. Install and build
+npm install
+npm run build
+
+# 2. Configure credentials
+cp .env.example .env
+# Edit .env with your AWS credentials
+
+# 3. Test connection
+node examples/quick-test.js
+
+# 4. Add to Claude Desktop config
+# Windows: %APPDATA%\Claude\claude_desktop_config.json
+# Mac: ~/Library/Application Support/Claude/claude_desktop_config.json
+```
+
+Config to add:
+```json
+{
+  "mcpServers": {
+    "aws-s3": {
+      "command": "node",
+      "args": ["/absolute/path/to/aws-s3-mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+**📖 Complete guide:** [QUICKSTART.md](QUICKSTART.md) (5 minutes)
+
+## Documentation
+
+- **[Setup Guide](SETUP_GUIDE.md)** - Complete installation and configuration instructions
+- **[Usage Guide](USAGE_GUIDE.md)** - How to use with Claude Desktop and examples
+- **[Examples](examples/)** - Sample scripts for download/upload operations
 
 ## Installation
 
@@ -30,21 +92,47 @@ AWS_SECRET_ACCESS_KEY=your_secret_key_here
 AWS_REGION=us-east-1
 
 # Optional: Enable write operations (presign_put)
-ALLOW_WRITE=true
+ALLOW_WRITE=false
 
 # Optional: Set log level (default: info)
 LOG_LEVEL=info
 ```
 
+**📖 For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
+
 ## Usage
 
-### Running the Server
+The server uses stdio transport and communicates via standard input/output, making it suitable for integration with MCP clients like Claude Desktop.
+
+### Running Standalone
 
 ```bash
 npm start
 ```
 
-The server uses stdio transport and communicates via standard input/output, making it suitable for integration with MCP clients.
+### Common Operations
+
+**List all buckets:**
+```
+"Show me all my S3 buckets"
+```
+
+**List objects in a bucket:**
+```
+"List all files in my-data-bucket"
+```
+
+**Get download link:**
+```
+"Give me a download link for report.pdf in my-docs-bucket"
+```
+
+**Get upload link (if ALLOW_WRITE=true):**
+```
+"Generate an upload URL for new-file.json in my-bucket"
+```
+
+**📖 For complete usage examples, see [USAGE_GUIDE.md](USAGE_GUIDE.md)**
 
 ### Available Tools
 
@@ -155,6 +243,88 @@ npm test
 npm run lint
 ```
 
+### Quick Connection Test
+
+```bash
+node examples/quick-test.js
+```
+
+## Troubleshooting
+
+### Server Not Responding in Claude
+
+1. Check Claude Desktop logs: Help → Show Logs
+2. Verify the server path in config is correct (use absolute path)
+3. Test manually: `node dist/index.js`
+4. Restart Claude Desktop
+
+### AWS Connection Issues
+
+**Error: Missing credentials**
+- Verify `.env` file exists in project root
+- Check no extra spaces in environment variables
+- Ensure file is named exactly `.env` (not `.env.txt`)
+
+**Error: Access Denied**
+- Verify IAM user has S3 permissions
+- Check the bucket exists in the specified region
+- Test credentials: `node examples/quick-test.js`
+
+**Error: Invalid Access Key**
+- Verify AWS_ACCESS_KEY_ID is correct
+- Check AWS_SECRET_ACCESS_KEY matches
+- Ensure credentials haven't been rotated/deleted
+
+### Write Operations Not Working
+
+- Set `ALLOW_WRITE=true` in `.env` file
+- Restart the MCP server
+- Verify IAM user has PutObject permission
+
+### Performance Issues
+
+For buckets with millions of objects:
+- Use prefix filtering: `"List files in my-bucket with prefix 'logs/2024/'"`
+- Limit results: `"Show first 100 files in my-bucket"`
+- Organize files with prefixes (like folders)
+
+**📖 For more troubleshooting, see [SETUP_GUIDE.md](SETUP_GUIDE.md#troubleshooting)**
+
+## Security Best Practices
+
+✅ **DO:**
+- Store credentials in `.env` file (never commit to git)
+- Use IAM users with minimal required permissions
+- Disable ALLOW_WRITE unless needed
+- Use short expiration times for presigned URLs
+- Rotate access keys regularly
+
+❌ **DON'T:**
+- Share presigned URLs publicly
+- Use root AWS account credentials
+- Commit `.env` file to version control
+- Grant broader permissions than necessary
+
+## Project Structure
+
+```
+aws-s3-mcp-server/
+├── dist/                 # Compiled JavaScript (generated)
+├── src/                  # TypeScript source code
+│   ├── index.ts         # Main MCP server
+│   └── index.test.ts    # Unit tests
+├── examples/            # Example scripts and usage
+│   ├── quick-test.js    # AWS connection test
+│   ├── test-upload.ps1  # Upload example
+│   └── test-download.ps1 # Download example
+├── .env.example         # Environment template
+├── package.json         # Dependencies
+├── tsconfig.json        # TypeScript config
+├── README.md           # This file
+├── SETUP_GUIDE.md      # Installation guide
+└── USAGE_GUIDE.md      # Usage examples
+```
+
 ## Security
 
 - AWS credentials are loaded from environment variables only
@@ -163,6 +333,37 @@ npm run lint
 - Presigned URLs have configurable expiration (max 7 days)
 - Logs are written to stderr to avoid interfering with stdio transport
 
+## Support
+
+- **Issues:** Report bugs or request features on GitHub
+- **Setup Help:** See [SETUP_GUIDE.md](SETUP_GUIDE.md)
+- **Usage Help:** See [USAGE_GUIDE.md](USAGE_GUIDE.md)
+- **Examples:** Check the `examples/` directory
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
 ## License
 
 MIT
+
+---
+
+## Quick Reference
+
+| Task | Command |
+|------|---------|
+| Install | `npm install` |
+| Build | `npm run build` |
+| Test AWS | `node examples/quick-test.js` |
+| Start Server | `npm start` |
+| Run Tests | `npm test` |
+| Development Mode | `npm run dev` |
+
+**Need Help?** Start with [SETUP_GUIDE.md](SETUP_GUIDE.md) for installation or [USAGE_GUIDE.md](USAGE_GUIDE.md) for examples!
