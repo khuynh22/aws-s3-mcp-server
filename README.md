@@ -1,2 +1,168 @@
-# aws-s3-mcp-server
-MCP server exposing AWS S3 tools: list buckets/objects, presigned GET/PUT, safe by default.
+# AWS S3 MCP Server
+
+A Model Context Protocol (MCP) server that exposes AWS S3 operations through a secure, well-defined interface. This server provides tools for listing buckets and objects, and generating presigned URLs for safe data access.
+
+## Features
+
+- **List Buckets**: Enumerate all S3 buckets in your AWS account
+- **List Objects**: Browse objects within a bucket with optional prefix filtering
+- **Presigned GET URLs**: Generate secure, temporary URLs for downloading objects
+- **Presigned PUT URLs**: Generate secure, temporary URLs for uploading objects (optional, requires ALLOW_WRITE flag)
+- **Input Validation**: All inputs are validated using Zod schemas
+- **Logging**: Structured logging with Pino
+- **Safe by Default**: Write operations are disabled unless explicitly enabled
+
+## Installation
+
+```bash
+npm install
+npm run build
+```
+
+## Configuration
+
+Create a `.env` file in the root directory (see `.env.example`):
+
+```bash
+# Required
+AWS_ACCESS_KEY_ID=your_access_key_here
+AWS_SECRET_ACCESS_KEY=your_secret_key_here
+AWS_REGION=us-east-1
+
+# Optional: Enable write operations (presign_put)
+ALLOW_WRITE=true
+
+# Optional: Set log level (default: info)
+LOG_LEVEL=info
+```
+
+## Usage
+
+### Running the Server
+
+```bash
+npm start
+```
+
+The server uses stdio transport and communicates via standard input/output, making it suitable for integration with MCP clients.
+
+### Available Tools
+
+#### 1. `s3_list_buckets`
+
+List all S3 buckets in the AWS account.
+
+**Input**: None
+
+**Example Response**:
+```json
+[
+  {
+    "name": "my-bucket",
+    "creationDate": "2024-01-01T00:00:00.000Z"
+  }
+]
+```
+
+#### 2. `s3_list_objects`
+
+List objects in an S3 bucket with optional filtering.
+
+**Input**:
+- `bucket` (required): The name of the S3 bucket
+- `prefix` (optional): Filter objects by prefix
+- `maxKeys` (optional): Maximum number of objects to return (1-1000)
+
+**Example Response**:
+```json
+{
+  "objects": [
+    {
+      "key": "path/to/file.txt",
+      "size": 1024,
+      "lastModified": "2024-01-01T00:00:00.000Z",
+      "etag": "\"abc123\""
+    }
+  ],
+  "isTruncated": false,
+  "keyCount": 1
+}
+```
+
+#### 3. `s3_presign_get`
+
+Generate a presigned URL for downloading an object.
+
+**Input**:
+- `bucket` (required): The name of the S3 bucket
+- `key` (required): The object key
+- `expiresIn` (optional): URL expiration time in seconds (default: 3600, max: 604800)
+
+**Example Response**:
+```json
+{
+  "url": "https://bucket.s3.amazonaws.com/key?X-Amz-Algorithm=...",
+  "expiresIn": 3600,
+  "bucket": "my-bucket",
+  "key": "path/to/file.txt"
+}
+```
+
+#### 4. `s3_presign_put`
+
+Generate a presigned URL for uploading an object (requires `ALLOW_WRITE=true`).
+
+**Input**:
+- `bucket` (required): The name of the S3 bucket
+- `key` (required): The object key
+- `expiresIn` (optional): URL expiration time in seconds (default: 3600, max: 604800)
+- `contentType` (optional): Content type of the object
+
+**Example Response**:
+```json
+{
+  "url": "https://bucket.s3.amazonaws.com/key?X-Amz-Algorithm=...",
+  "expiresIn": 3600,
+  "bucket": "my-bucket",
+  "key": "path/to/file.txt",
+  "contentType": "application/json"
+}
+```
+
+## Development
+
+### Build
+
+```bash
+npm run build
+```
+
+### Watch Mode
+
+```bash
+npm run dev
+```
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+## Security
+
+- AWS credentials are loaded from environment variables only
+- Write operations (presigned PUT URLs) are disabled by default
+- All inputs are validated using Zod schemas
+- Presigned URLs have configurable expiration (max 7 days)
+- Logs are written to stderr to avoid interfering with stdio transport
+
+## License
+
+MIT
