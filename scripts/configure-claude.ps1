@@ -1,4 +1,4 @@
-# Configure Claude Desktop to use this MCP server
+﻿# Configure Claude Desktop to use this MCP server
 # This script helps generate the Claude Desktop configuration
 
 Write-Host "======================================" -ForegroundColor Cyan
@@ -15,7 +15,7 @@ $jsonPath = $serverPath -replace '\\', '\\'
 
 # Check if server is built
 if (-not (Test-Path $serverPath)) {
-    Write-Host "✗ Server not built!" -ForegroundColor Red
+    Write-Host " Server not built!" -ForegroundColor Red
     Write-Host "Please run: npm run build" -ForegroundColor Yellow
     exit 1
 }
@@ -52,9 +52,9 @@ Write-Host ""
 
 # Check if config file exists
 if (Test-Path $claudeConfigPath) {
-    Write-Host "✓ Claude Desktop config file found" -ForegroundColor Green
+    Write-Host " Claude Desktop config file found" -ForegroundColor Green
     Write-Host ""
-    Write-Host "⚠ The file already exists. Please:" -ForegroundColor Yellow
+    Write-Host " The file already exists. Please:" -ForegroundColor Yellow
     Write-Host "  1. Back up your existing config" -ForegroundColor White
     Write-Host "  2. Open the file:" -ForegroundColor White
     Write-Host "     notepad `"$claudeConfigPath`"" -ForegroundColor Cyan
@@ -77,7 +77,7 @@ if (Test-Path $claudeConfigPath) {
         $config | Out-File -FilePath $claudeConfigPath -Encoding UTF8
 
         Write-Host ""
-        Write-Host "✓ Configuration file created!" -ForegroundColor Green
+        Write-Host " Configuration file created!" -ForegroundColor Green
         Write-Host ""
         Write-Host "Next steps:" -ForegroundColor Yellow
         Write-Host "  1. Restart Claude Desktop" -ForegroundColor White
